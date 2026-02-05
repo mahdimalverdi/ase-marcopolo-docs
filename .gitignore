@@ -1,0 +1,16 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Office/LibreOffice lock files
+.~lock.*
+
+# Local exports / generated artifacts
+SAD.html
+SAD.pdf
+SAD_files/
+
+# VS Code (optional)
+.vscode/
