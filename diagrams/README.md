@@ -14,6 +14,25 @@
 - `vp-09-deployment.png`
 - `vp-10-erd.png`
 
+فایل‌هایی که در `SAD-Final.docx` استفاده می‌شوند:
+
+- `fig-2-1-context.png`
+- `fig-2-2-container.png`
+- `fig-2-3-component.png`
+- `fig-4-1-usecase.png`
+- `fig-4-2-uc01-cache-hit.png`
+- `fig-4-3-uc01-cache-miss.png`
+- `fig-4-4-activity-uc01.png`
+- `fig-4-5-uc02-start-pay.png`
+- `fig-4-6-uc02-callback-verify.png`
+- `fig-4-7-uc02-issue-notify.png`
+- `fig-4-8-activity-uc02.png`
+- `fig-4-9-state-booking.png`
+- `fig-5-1-class-analytical.png`
+- `fig-5-2-class-design.png`
+- `fig-7-1-deploy.png`
+- `fig-9-1-erd.png`
+
 پیشنهاد خروجی:
 
 - فرمت: PNG
@@ -34,9 +53,15 @@
   - `diagrams/fig-2-2-container.png`
   - `diagrams/fig-2-3-component.png`
   - `diagrams/fig-4-1-usecase.png`
-  - `diagrams/fig-4-2-uc01.png`
-  - `diagrams/fig-4-3-uc02.png`
-  - `diagrams/fig-4-4-seq-uc02.png`
-  - `diagrams/fig-5-1-class-high.png`
+  - `diagrams/fig-4-2-uc01-cache-hit.png`
+  - `diagrams/fig-4-3-uc01-cache-miss.png`
+  - `diagrams/fig-4-4-activity-uc01.png`
+  - `diagrams/fig-4-5-uc02-start-pay.png`
+  - `diagrams/fig-4-6-uc02-callback-verify.png`
+  - `diagrams/fig-4-7-uc02-issue-notify.png`
+  - `diagrams/fig-4-8-activity-uc02.png`
+  - `diagrams/fig-4-9-state-booking.png`
+  - `diagrams/fig-5-1-class-analytical.png`
+  - `diagrams/fig-5-2-class-design.png`
   - `diagrams/fig-7-1-deploy.png`
   - `diagrams/fig-9-1-erd.png`

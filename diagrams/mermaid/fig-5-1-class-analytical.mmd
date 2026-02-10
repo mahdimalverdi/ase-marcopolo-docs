@@ -1,0 +1,31 @@
+classDiagram
+  class Booking {
+    +bookingId
+    +status
+    +createdAt
+    +expiresAt
+  }
+
+  class Passenger {
+    +fullName
+    +nationalId
+    +birthDate
+  }
+
+  class PaymentTransaction {
+    +transactionId
+    +gatewayRef
+    +amount
+    +status
+    +idempotencyKey
+  }
+
+  class Ticket {
+    +ticketId
+    +providerRef
+    +issueStatus
+  }
+
+  Booking "1" --> "*" Passenger : "شامل"
+  Booking "1" --> "0..*" PaymentTransaction : "تراکنش‌ها"
+  Booking "1" --> "0..1" Ticket : "نتیجه صدور"

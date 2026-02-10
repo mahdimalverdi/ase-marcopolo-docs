@@ -1,17 +1,47 @@
 flowchart TB
-  U[کاربر]
-  SP[تیم پشتیبانی]
+  Guest[مشتری (مهمان)]
+  User[مشتری (عضو)]
+  Bank[درگاه پرداخت]
+  SupportAgent[اپراتور پشتیبانی]
+  Admin[مدیر سامانه]
+  Provider[تأمین‌کننده]
 
-  UC1((جست‌وجوی خدمات سفر))
-  UC2((خرید بلیت))
-  UC3((استرداد/لغو))
-  UC4((شارژ کیف‌پول))
-  UC5((ثبت تیکت پشتیبانی))
+  subgraph System[سامانه مارکوپولو]
+    UC_Search([جست‌وجوی خدمات سفر])
+    UC_AdvSearch([جست‌وجوی پیشرفته])
+    UC_View([مشاهده جزئیات گزینه])
+    UC_Buy([خرید بلیت])
+    UC_Refund([استرداد بلیت])
+    UC_Wallet([کیف‌پول])
+    UC_Support([ثبت/پیگیری تیکت])
+    UC_Review([ثبت نظر/امتیاز])
+    UC_Settle([تسویه‌حساب با تأمین‌کنندگان])
+    UC_Admin([مدیریت سامانه])
+    UC_Payment([پرداخت])
+    UC_Notify([ارسال اعلان])
+  end
 
-  U --> UC1
-  U --> UC2
-  U --> UC3
-  U --> UC4
-  U --> UC5
-  SP --> UC5
+  Guest --> UC_Search
+  Guest --> UC_AdvSearch
+  Guest --> UC_View
 
+  User --> UC_Search
+  User --> UC_AdvSearch
+  User --> UC_View
+  User --> UC_Buy
+  User --> UC_Refund
+  User --> UC_Wallet
+  User --> UC_Support
+  User --> UC_Review
+
+  Bank --> UC_Payment
+  SupportAgent --> UC_Support
+  Admin --> UC_Admin
+  Provider --> UC_Settle
+
+  UC_AdvSearch -.->|extend| UC_Search
+  UC_View -.->|include| UC_Search
+  UC_Buy -.->|include| UC_Payment
+  UC_Buy -.->|include| UC_Notify
+  UC_Refund -.->|include| UC_Payment
+  UC_Refund -.->|include| UC_Notify

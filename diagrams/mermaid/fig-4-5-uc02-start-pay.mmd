@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant U as کاربر
+  participant UI as رابط کاربری
+  participant API as API
+  participant P as تأمین‌کننده
+  participant DB as پایگاه داده
+  participant PG as درگاه پرداخت
+
+  U->>UI: انتخاب گزینه + ورود اطلاعات مسافر
+  UI->>API: POST /bookings
+  API->>P: بازبینی ظرفیت/قیمت
+  P-->>API: تأیید/عدم‌تأیید
+  alt رد شد
+    API-->>UI: پیام تغییر قیمت/عدم موجودی
+  else تأیید شد
+    API->>DB: ایجاد سفارش (در انتظار پرداخت) + ثبت کلید یکتایی عملیات
+    API->>PG: شروع پرداخت (با کلید یکتایی)
+    PG-->>U: هدایت به صفحه پرداخت
+    API-->>UI: نمایش مسیر پرداخت/وضعیت سفارش
+  end
+

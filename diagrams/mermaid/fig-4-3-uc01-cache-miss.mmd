@@ -1,0 +1,28 @@
+sequenceDiagram
+  participant U as کاربر
+  participant UI as رابط کاربری
+  participant API as API
+  participant Cache as حافظه نهان
+  participant P1 as تأمین‌کننده ۱
+  participant P2 as تأمین‌کننده ۲
+
+  U->>UI: ثبت معیارهای جست‌وجو
+  UI->>API: GET /search
+  API->>Cache: بررسی نتیجه
+  Cache-->>API: نتیجه موجود نیست
+
+  par تماس هم‌زمان
+    API->>P1: درخواست جست‌وجو (با مهلت زمانی)
+    API->>P2: درخواست جست‌وجو (با مهلت زمانی)
+  end
+  alt یکی از تأمین‌کننده‌ها دیر جواب می‌دهد/قطع است
+    API-->>API: حذف همان تأمین‌کننده (کاهش سطح خدمت)
+  end
+  P1-->>API: نتیجه/خطا
+  P2-->>API: نتیجه/خطا
+
+  API-->>API: تجمیع + حذف تکراری + مرتب‌سازی/فیلتر
+  API->>Cache: ذخیره نتیجه با زمان اعتبار
+  API-->>UI: نتایج صفحه‌بندی (با پیام کاهش سطح خدمت در صورت نیاز)
+  UI-->>U: نمایش نتایج
+

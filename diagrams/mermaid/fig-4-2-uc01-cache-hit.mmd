@@ -1,0 +1,13 @@
+sequenceDiagram
+  participant U as کاربر
+  participant UI as رابط کاربری
+  participant API as API
+  participant Cache as حافظه نهان
+
+  U->>UI: ثبت معیارهای جست‌وجو
+  UI->>API: GET /search
+  API->>Cache: بررسی نتیجه
+  Cache-->>API: نتیجه معتبر
+  API-->>UI: نتایج صفحه‌بندی
+  UI-->>U: نمایش نتایج
+

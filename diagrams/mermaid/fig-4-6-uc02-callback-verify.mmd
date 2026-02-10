@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant PG as درگاه پرداخت
+  participant API as API
+  participant DB as پایگاه داده
+
+  PG-->>API: callback پرداخت (ممکن است تکراری)
+  API->>DB: بررسی کلید یکتایی عملیات
+  alt تکراری است
+    API-->>PG: پاسخ تکراری (بی‌اثر)
+  else جدید است
+    API->>PG: راستی‌آزمایی پرداخت (verify)
+    PG-->>API: نتیجه راستی‌آزمایی
+    alt موفق
+      API->>DB: ثبت تراکنش + تغییر وضعیت به «پرداخت تأیید شد»
+    else ناموفق/مبهم
+      API->>DB: ثبت وضعیت «نیازمند بررسی»/ناموفق
+    end
+  end
+

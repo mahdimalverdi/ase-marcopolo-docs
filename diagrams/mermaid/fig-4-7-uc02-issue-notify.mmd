@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant API as API
+  participant DB as پایگاه داده
+  participant P as تأمین‌کننده
+  participant N as سرویس اعلان
+  participant S as پشتیبانی
+
+  API->>DB: خواندن سفارشِ پرداخت‌شده
+  API->>P: درخواست صدور بلیت
+  alt صدور موفق
+    P-->>API: بلیت/کد پیگیری
+    API->>DB: ثبت بلیت + تغییر وضعیت به «صدور انجام شد»
+    API->>N: ارسال اعلان تأیید خرید
+  else صدور ناموفق
+    P-->>API: خطا/عدم پاسخ
+    API->>DB: ثبت «صدور ناموفق» + برنامه تلاش‌مجدد
+    API->>S: ایجاد/ثبت تیکت عملیاتی
+  end
+

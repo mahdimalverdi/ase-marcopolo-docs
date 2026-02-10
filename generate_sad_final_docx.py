@@ -309,10 +309,16 @@ def ensure_default_diagrams(diagrams_dir: Path) -> dict[str, Path]:
         "2-2": diagrams_dir / "fig-2-2-container.png",
         "2-3": diagrams_dir / "fig-2-3-component.png",
         "4-1": diagrams_dir / "fig-4-1-usecase.png",
-        "4-2": diagrams_dir / "fig-4-2-uc01.png",
-        "4-3": diagrams_dir / "fig-4-3-uc02.png",
-        "4-4": diagrams_dir / "fig-4-4-seq-uc02.png",
-        "5-1": diagrams_dir / "fig-5-1-class-high.png",
+        "4-2": diagrams_dir / "fig-4-2-uc01-cache-hit.png",
+        "4-3": diagrams_dir / "fig-4-3-uc01-cache-miss.png",
+        "4-4": diagrams_dir / "fig-4-4-activity-uc01.png",
+        "4-5": diagrams_dir / "fig-4-5-uc02-start-pay.png",
+        "4-6": diagrams_dir / "fig-4-6-uc02-callback-verify.png",
+        "4-7": diagrams_dir / "fig-4-7-uc02-issue-notify.png",
+        "4-8": diagrams_dir / "fig-4-8-activity-uc02.png",
+        "4-9": diagrams_dir / "fig-4-9-state-booking.png",
+        "5-1": diagrams_dir / "fig-5-1-class-analytical.png",
+        "5-2": diagrams_dir / "fig-5-2-class-design.png",
         "7-1": diagrams_dir / "fig-7-1-deploy.png",
         "9-1": diagrams_dir / "fig-9-1-erd.png",
     }
@@ -382,7 +388,21 @@ def ensure_default_diagrams(diagrams_dir: Path) -> dict[str, Path]:
             ],
         )
 
-    for fig_id in ["4-1", "4-2", "4-3", "4-4", "5-1", "7-1", "9-1"]:
+    for fig_id in [
+        "4-1",
+        "4-2",
+        "4-3",
+        "4-4",
+        "4-5",
+        "4-6",
+        "4-7",
+        "4-8",
+        "4-9",
+        "5-1",
+        "5-2",
+        "7-1",
+        "9-1",
+    ]:
         p = fig_paths[fig_id]
         if p.exists():
             continue
@@ -560,22 +580,24 @@ def embed_figures(
         ensure_default_diagrams(diagrams_dir)
 
     # Always map figure IDs to the expected filenames (so replacing later is stable).
-    expected = (
-        ensure_default_diagrams(diagrams_dir)
-        if autogen
-        else {
+    expected = ensure_default_diagrams(diagrams_dir) if autogen else {
         "2-1": diagrams_dir / "fig-2-1-context.png",
         "2-2": diagrams_dir / "fig-2-2-container.png",
         "2-3": diagrams_dir / "fig-2-3-component.png",
         "4-1": diagrams_dir / "fig-4-1-usecase.png",
-        "4-2": diagrams_dir / "fig-4-2-uc01.png",
-        "4-3": diagrams_dir / "fig-4-3-uc02.png",
-        "4-4": diagrams_dir / "fig-4-4-seq-uc02.png",
-        "5-1": diagrams_dir / "fig-5-1-class-high.png",
+        "4-2": diagrams_dir / "fig-4-2-uc01-cache-hit.png",
+        "4-3": diagrams_dir / "fig-4-3-uc01-cache-miss.png",
+        "4-4": diagrams_dir / "fig-4-4-activity-uc01.png",
+        "4-5": diagrams_dir / "fig-4-5-uc02-start-pay.png",
+        "4-6": diagrams_dir / "fig-4-6-uc02-callback-verify.png",
+        "4-7": diagrams_dir / "fig-4-7-uc02-issue-notify.png",
+        "4-8": diagrams_dir / "fig-4-8-activity-uc02.png",
+        "4-9": diagrams_dir / "fig-4-9-state-booking.png",
+        "5-1": diagrams_dir / "fig-5-1-class-analytical.png",
+        "5-2": diagrams_dir / "fig-5-2-class-design.png",
         "7-1": diagrams_dir / "fig-7-1-deploy.png",
         "9-1": diagrams_dir / "fig-9-1-erd.png",
-        }
-    )
+    }
 
     rels_root: ET.Element | None = None
     docpr_id = 1000
@@ -880,13 +902,31 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
     el.append(make_p("دید سناریوها", style="Heading1"))
     el.append(make_p("عینیت‌بخشی موارد کاربری", style="Heading2"))
     el.append(make_fig_marker("4-1"))
-    el.append(fig_caption("شکل ۴-۱: نمودار موردکاربری در سطح سیستم."))
+    el.append(fig_caption("شکل ۴-۱: نمودار موردکاربری در سطح سیستم (جامع)."))
+
     el.append(make_fig_marker("4-2"))
-    el.append(fig_caption("شکل ۴-۲: نمودار توالی برای UC-01."))
+    el.append(fig_caption("شکل ۴-۲: نمودار توالی UC-01 (Cache Hit)."))
+
     el.append(make_fig_marker("4-3"))
-    el.append(fig_caption("شکل ۴-۳: نمودار توالی برای UC-02."))
+    el.append(fig_caption("شکل ۴-۳: نمودار توالی UC-01 (Cache Miss + چند تأمین‌کننده + کنترل خطا)."))
+
     el.append(make_fig_marker("4-4"))
-    el.append(fig_caption("شکل ۴-۴: نمودار حالت سفارش (وضعیت‌های سفارش از ایجاد تا پرداخت و صدور)."))
+    el.append(fig_caption("شکل ۴-۴: نمودار فعالیت UC-01 (اعتبارسنجی، Cache، کاهش سطح خدمت، صفحه‌بندی)."))
+
+    el.append(make_fig_marker("4-5"))
+    el.append(fig_caption("شکل ۴-۵: نمودار توالی UC-02 (شروع خرید تا شروع پرداخت)."))
+
+    el.append(make_fig_marker("4-6"))
+    el.append(fig_caption("شکل ۴-۶: نمودار توالی UC-02 (بازگشت بانک و راستی‌آزمایی پرداخت)."))
+
+    el.append(make_fig_marker("4-7"))
+    el.append(fig_caption("شکل ۴-۷: نمودار توالی UC-02 (صدور، اعلان و مسیر جبرانی)."))
+
+    el.append(make_fig_marker("4-8"))
+    el.append(fig_caption("شکل ۴-۸: نمودار فعالیت UC-02 (با مسیرهای استثنا)."))
+
+    el.append(make_fig_marker("4-9"))
+    el.append(fig_caption("شکل ۴-۹: نمودار حالت سفارش (چرخه عمر سفارش از ایجاد تا پرداخت و صدور)."))
     el.append(make_p("حداقل اجزای مشخصات سناریو", style="Heading2"))
     el.append(
         make_tbl(
@@ -1079,6 +1119,26 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             ],
         )
     )
+    el.append(make_p("CRC (تحلیل) — مشترک", style="Heading2"))
+    el.append(
+        make_tbl(
+            ["کلاس", "مسئولیت‌ها", "همکاران"],
+            [
+                ["SearchController", "دریافت ورودی جست‌وجو، اعتبارسنجی اولیه، مدیریت خروجی صفحه‌بندی", "SearchService، CacheClient"],
+                ["SearchService", "اجرای جست‌وجو، تجمیع نتایج، حذف تکراری، مرتب‌سازی/فیلتر", "ProviderAdapter، CacheClient"],
+                ["BookingController", "شروع خرید، دریافت اطلاعات مسافر، ایجاد سفارش و نمایش وضعیت", "BookingService، PaymentService"],
+                ["BookingService", "ساخت/به‌روزرسانی سفارش، مدیریت چرخه وضعیت، قواعد انقضا", "BookingRepository، ProviderAdapter"],
+                ["PaymentService", "شروع پرداخت، کنترل یکتایی عملیات، راستی‌آزمایی تراکنش", "PaymentGatewayClient، TransactionRepository"],
+                ["IssueService", "ارسال درخواست صدور و ثبت نتیجه، مدیریت تلاش‌مجدد", "ProviderAdapter، NotificationService"],
+                ["RefundService", "بررسی قوانین استرداد، ثبت درخواست و مدیریت بازپرداخت", "ProviderAdapter، PaymentGatewayClient، WalletService"],
+                ["ProviderAdapter", "تطبیق قرارداد هر تأمین‌کننده، نگاشت داده و مدیریت خطا", "HTTPClient، ProviderMapper"],
+                ["NotificationService", "ارسال پیامک/ایمیل و پیگیری خطاهای ارسال", "NotifyClient، OutboxRepository"],
+                ["SupportService", "ثبت و پیگیری تیکت‌های عملیاتی", "SupportClient، AuditLog"],
+            ],
+            col_weights=[2, 4, 3],
+        )
+    )
+
     el.append(make_p("الگوهای طراحی کلیدی (نمونه)", style="Heading2"))
     el.append(
         make_p(
@@ -1091,7 +1151,9 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
         )
     )
     el.append(make_fig_marker("5-1"))
-    el.append(fig_caption("شکل ۵-۱: نمودار کلاس سطح‌بالا (در صورت نیاز)."))
+    el.append(fig_caption("شکل ۵-۱: نمودار کلاس (تحلیلی) — کلاس‌های کلیدی و رابطه‌ها."))
+    el.append(make_fig_marker("5-2"))
+    el.append(fig_caption("شکل ۵-۲: نمودار کلاس (طراحی) — تمرکز روی رابط‌ها و عملیات."))
 
     # 6) دید فرایند
     el.append(make_p("دید فرایند", style="Heading1"))
