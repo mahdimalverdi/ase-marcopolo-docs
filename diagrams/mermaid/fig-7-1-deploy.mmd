@@ -1,0 +1,34 @@
+flowchart LR
+  U[کاربر] --> UI[وب/موبایل]
+  UI --> LB[ورودی/متعادل‌کننده بار]
+
+  subgraph App[سرویس‌های برنامه]
+    API[API]
+    Worker[کارهای پس‌زمینه]
+  end
+
+  subgraph Data[داده]
+    DB[(پایگاه داده)]
+    Cache[(حافظه نهان)]
+    Q[(صف/پیام)]
+  end
+
+  subgraph Ext[بیرونی]
+    Providers[تأمین‌کنندگان]
+    Payment[درگاه پرداخت]
+    Notify[اعلان]
+    Support[پشتیبانی]
+  end
+
+  LB --> API
+  API --> DB
+  API --> Cache
+  API --> Q
+  Worker --> Q
+  Worker --> DB
+  Worker --> Cache
+  API --> Providers
+  API --> Payment
+  API --> Notify
+  API --> Support
+

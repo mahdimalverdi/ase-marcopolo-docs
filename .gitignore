@@ -14,3 +14,11 @@ SAD_files/
 
 # VS Code (optional)
 .vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Intermediate SAD outputs (keep SAD-Final.docx)
+SAD-Final-with-images*.docx
+SAD-Final-no-images*.docx

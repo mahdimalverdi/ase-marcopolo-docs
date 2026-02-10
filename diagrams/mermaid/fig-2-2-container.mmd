@@ -1,0 +1,40 @@
+flowchart LR
+  subgraph Client[کلاینت]
+    W[وب]
+    M[موبایل]
+  end
+
+  subgraph Backend[سمت سرور]
+    API[API]
+    Worker[کارهای پس‌زمینه]
+  end
+
+  subgraph Data[داده]
+    DB[(پایگاه داده)]
+    Cache[(حافظه نهان)]
+    Q[(صف/پیام)]
+  end
+
+  subgraph Ext[بیرونی]
+    Providers[تأمین‌کنندگان]
+    Payment[درگاه پرداخت]
+    Notify[اعلان]
+    Support[پشتیبانی]
+  end
+
+  W --> API
+  M --> API
+
+  API --> DB
+  API --> Cache
+  API --> Q
+
+  Worker --> DB
+  Worker --> Cache
+  Worker --> Q
+
+  API --> Providers
+  API --> Payment
+  API --> Notify
+  API --> Support
+

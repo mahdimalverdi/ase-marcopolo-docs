@@ -1,0 +1,60 @@
+erDiagram
+  USER ||--o{ BOOKING : ثبت_می‌کند
+  BOOKING ||--o{ PASSENGER : شامل
+  BOOKING ||--o{ PAYMENT_TRANSACTION : دارد
+  BOOKING ||--o| TICKET : تولید_می‌کند
+
+  USER ||--o| WALLET : دارد
+  WALLET ||--o{ WALLET_TX : ثبت_می‌کند
+
+  USER {
+    string user_id
+    string phone
+    string email
+  }
+
+  BOOKING {
+    string booking_id
+    string status
+    datetime created_at
+    datetime expires_at
+    string provider_name
+  }
+
+  PASSENGER {
+    string passenger_id
+    string booking_id
+    string full_name
+    string national_id
+  }
+
+  PAYMENT_TRANSACTION {
+    string transaction_id
+    string booking_id
+    string gateway_ref
+    string idempotency_key
+    string status
+    int amount
+  }
+
+  TICKET {
+    string ticket_id
+    string booking_id
+    string provider_ref
+    string status
+  }
+
+  WALLET {
+    string wallet_id
+    string user_id
+    int balance
+  }
+
+  WALLET_TX {
+    string wallet_tx_id
+    string wallet_id
+    int amount
+    string type
+    datetime created_at
+  }
+

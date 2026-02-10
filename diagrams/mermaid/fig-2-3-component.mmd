@@ -1,0 +1,48 @@
+flowchart TB
+  subgraph API[لایه API]
+    Auth[احراز هویت/مجوز]
+    Validate[اعتبارسنجی]
+    Controllers[کنترلرها]
+  end
+
+  subgraph Domain[دامنه و خدمات]
+    Search[خدمت جست‌وجو]
+    Booking[خدمت سفارش]
+    Pay[خدمت پرداخت]
+    Issue[خدمت صدور]
+    Refund[خدمت استرداد]
+  end
+
+  subgraph Integrations[یکپارچه‌سازی]
+    ProviderAdapter[مبدل تأمین‌کننده]
+    PaymentClient[کلاینت درگاه]
+    NotifyClient[کلاینت اعلان]
+    SupportClient[کلاینت پشتیبانی]
+  end
+
+  subgraph Data[داده]
+    Repo[مخزن‌ها]
+    DB[(پایگاه داده)]
+    Cache[(حافظه نهان)]
+  end
+
+  Auth --> Controllers
+  Validate --> Controllers
+  Controllers --> Search
+  Controllers --> Booking
+
+  Search --> ProviderAdapter
+  Booking --> ProviderAdapter
+  Pay --> PaymentClient
+  Issue --> ProviderAdapter
+  Refund --> PaymentClient
+
+  Search --> Repo
+  Booking --> Repo
+  Pay --> Repo
+  Repo --> DB
+  Search --> Cache
+
+  Booking --> NotifyClient
+  Booking --> SupportClient
+
