@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import datetime as _dt
+import copy
 import re
 import zipfile
 import argparse
@@ -43,6 +44,69 @@ ET.register_namespace("rel", REL_NS)
 SYSTEM_NAME: Final = "مارکوپولو"
 DOC_VERSION: Final = "1.0"
 DOC_CLASSIFICATION: Final = "محرمانه"
+GROUP_MEMBERS_FALLBACK: Final = "محمد صادقی، مهدی مالوردی"
+
+
+def _read_group_members_from_markdown(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return None
+    m = re.search(r"^\s*-\s*اعضای گروه:\s*(.+?)\s*$", text, flags=re.M)
+    if not m:
+        return None
+    val = m.group(1).strip()
+    return val or None
+
+
+def get_group_members() -> str:
+    return (
+        _read_group_members_from_markdown(Path("SAD.md"))
+        or _read_group_members_from_markdown(Path("SAD-From-Template.md"))
+        or GROUP_MEMBERS_FALLBACK
+    )
+
+
+def fill_cover_group_members(root: ET.Element, members: str) -> None:
+    """
+    Fill the (usually empty) paragraphs under 'نام اعضای گروه:' on the cover page.
+    Tries to keep the template formatting by reusing run properties from the label line.
+    """
+    body = root.find("w:body", NS)
+    if body is None:
+        return
+    paras = list(body.findall("w:p", NS))
+
+    def _ensure_run_with_text(p: ET.Element, text: str, *, rpr_source: ET.Element | None) -> None:
+        r = p.find("w:r", NS)
+        if r is None:
+            r = ET.SubElement(p, _qn("w:r"))
+        if rpr_source is not None and r.find("w:rPr", NS) is None:
+            r.append(copy.deepcopy(rpr_source))
+        t = r.find("w:t", NS)
+        if t is None:
+            t = ET.SubElement(r, _qn("w:t"))
+        t.text = text
+
+    for i, p in enumerate(paras):
+        if _p_text(p) != "نام اعضای گروه:":
+            continue
+
+        label_run = p.find("w:r", NS)
+        label_rpr = label_run.find("w:rPr", NS) if label_run is not None else None
+
+        for j in range(i + 1, min(i + 20, len(paras))):
+            pj = paras[j]
+            if _p_text(pj):
+                break
+            # Pick the first empty paragraph that has cover-like formatting (centered).
+            jc = pj.find("w:pPr/w:jc", NS)
+            if jc is not None and jc.attrib.get(_qns(W_NS, "val")) == "center":
+                _ensure_run_with_text(pj, members, rpr_source=label_rpr)
+                return
+        return
 
 
 def _gregorian_to_jalali(gy: int, gm: int, gd: int) -> tuple[int, int, int]:
@@ -1480,6 +1544,7 @@ def main() -> int:
     replace_first_paragraph_text(root, "سازمان ...", "سازمان آژانس مسافرتی مارکوپولو")
     replace_first_paragraph_text(root, "سامانه ...", "سامانه فروش/رزرو خدمات سفر (وب/موبایل)")
     replace_first_paragraph_text(root, "پاییز 1404", "زمستان ۱۴۰۴")
+    fill_cover_group_members(root, get_group_members())
 
     # Fill history table
     fill_history_table(root)
