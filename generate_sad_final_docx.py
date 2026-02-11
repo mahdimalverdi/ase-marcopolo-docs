@@ -39,6 +39,97 @@ ET.register_namespace("r", R_NS)
 ET.register_namespace("ct", CT_NS)
 ET.register_namespace("rel", REL_NS)
 
+# Header/footer metadata defaults (adjust if needed)
+SYSTEM_NAME: Final = "مارکوپولو"
+DOC_VERSION: Final = "1.0"
+DOC_CLASSIFICATION: Final = "محرمانه"
+
+
+def _gregorian_to_jalali(gy: int, gm: int, gd: int) -> tuple[int, int, int]:
+    """
+    Convert Gregorian date to Jalali (Solar Hijri).
+    Implementation based on the common arithmetic conversion algorithm.
+    """
+    g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+    gy2 = gy + 1 if gm > 2 else gy
+    days = (
+        355666
+        + 365 * gy
+        + (gy2 + 3) // 4
+        - (gy2 + 99) // 100
+        + (gy2 + 399) // 400
+        + gd
+        + g_d_m[gm - 1]
+    )
+    jy = -1595 + 33 * (days // 12053)
+    days %= 12053
+    jy += 4 * (days // 1461)
+    days %= 1461
+    if days > 365:
+        jy += (days - 1) // 365
+        days = (days - 1) % 365
+    if days < 186:
+        jm = 1 + days // 31
+        jd = 1 + days % 31
+    else:
+        jm = 7 + (days - 186) // 30
+        jd = 1 + (days - 186) % 30
+    return jy, jm, jd
+
+
+def _update_header_footer_xml(file_bytes: dict[str, bytes]) -> None:
+    """
+    Update header/footer placeholders so the output doesn't keep template '...'.
+    Keeps the existing layout and edits only w:t text nodes.
+    """
+    today = _dt.date.today()
+    jy, jm, jd = _gregorian_to_jalali(today.year, today.month, today.day)
+    jalali_day = f"{jd:02d}"
+    jalali_month = f"{jm:02d}"
+    jy_str = str(jy)
+    greg_year = str(today.year)
+
+    def _patch_part(part_path: str, edits: dict[int, str]) -> None:
+        raw = file_bytes.get(part_path)
+        if raw is None:
+            return
+        try:
+            root = ET.fromstring(raw)
+        except Exception:
+            return
+        nodes = root.findall(".//w:t", NS)
+        for idx, val in edits.items():
+            if 0 <= idx < len(nodes):
+                nodes[idx].text = val
+        file_bytes[part_path] = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+
+    # word/header1.xml tokens (by index):
+    # 0 'سامانه ' | 1 '...' | 2 'نسخه 1.0' | ... | 7 'تاريخ: ' | 8 dd | 9 '/' | 10 mm | 11 '/140' | 12 '3'
+    header_year_prefix = f"/{jy_str[:-1]}" if len(jy_str) == 4 else f"/{jy_str}"
+    header_year_last = jy_str[-1] if len(jy_str) == 4 else ""
+    _patch_part(
+        "word/header1.xml",
+        {
+            1: SYSTEM_NAME,
+            2: f"نسخه {DOC_VERSION}",
+            8: jalali_day,
+            10: jalali_month,
+            11: header_year_prefix,
+            12: header_year_last,
+        },
+    )
+
+    # word/footer2.xml tokens (by index):
+    # 0 'محرمانه' | 3 '2025' | 4 '، سامانه ...' | 5 'صفحه ' | 6 PAGE | 8 NUMPAGES
+    _patch_part(
+        "word/footer2.xml",
+        {
+            0: DOC_CLASSIFICATION,
+            3: "\u200f" + greg_year,
+            4: f"، سامانه {SYSTEM_NAME}",
+        },
+    )
+
 
 def _qns(uri: str, local: str) -> str:
     return f"{{{uri}}}{local}"
@@ -599,6 +690,18 @@ def embed_figures(
         "9-1": diagrams_dir / "fig-9-1-erd.png",
     }
 
+    def _pick_diagram_path(base_path: Path | None) -> Path | None:
+        if base_path is None:
+            return None
+        vp_path = base_path.with_name(f"{base_path.stem}-vp{base_path.suffix}")
+        if vp_path.exists():
+            return vp_path
+        if base_path.exists():
+            return base_path
+        # If the base diagram is missing but the VP variant exists (e.g., autogen disabled),
+        # prefer the VP export when available.
+        return vp_path if vp_path.exists() else None
+
     rels_root: ET.Element | None = None
     docpr_id = 1000
 
@@ -612,7 +715,7 @@ def embed_figures(
         if not (txt.startswith(FIGURE_MARKER_PREFIX) and txt.endswith("]")):
             continue
         fig_id = txt[len(FIGURE_MARKER_PREFIX) : -1]
-        img_path = expected.get(fig_id)
+        img_path = _pick_diagram_path(expected.get(fig_id))
         if not embed_images:
             body.remove(p)
             continue
@@ -1416,6 +1519,9 @@ def main() -> int:
         autogen=not args.no_autogen_diagrams,
         embed_images=args.embed_images,
     )
+
+    # Fix header/footer placeholders (e.g., '...') after all edits.
+    _update_header_footer_xml(file_bytes)
 
     # Write output docx (preserve all other parts)
     new_doc_xml = ET.tostring(root, encoding="utf-8", xml_declaration=True)

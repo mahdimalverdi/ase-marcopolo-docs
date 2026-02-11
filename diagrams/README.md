@@ -65,3 +65,7 @@
   - `diagrams/fig-5-2-class-design.png`
   - `diagrams/fig-7-1-deploy.png`
   - `diagrams/fig-9-1-erd.png`
+
+نکته:
+
+- اگر نمودارها را با Visual Paradigm خروجی می‌گیرید، می‌توانید آن‌ها را با پسوند `-vp` کنار همین فایل‌ها بگذارید (مثلاً `fig-2-1-context-vp.png`)؛ در این حالت سازندهٔ سند، به‌صورت خودکار فایل `-vp` را نسبت به نسخهٔ معمولی ترجیح می‌دهد.
