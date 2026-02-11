@@ -915,6 +915,146 @@ def ensure_toc_field(root: ET.Element, file_bytes: dict[str, bytes]) -> None:
     file_bytes["word/settings.xml"] = ET.tostring(sroot, encoding="utf-8", xml_declaration=True)
 
 
+def rebuild_toc_like_template(root: ET.Element, *, content_start_idx: int | None = None) -> None:
+    """
+    Rebuild the visible TOC entries (TOC1/TOC2/TOC3 paragraphs) so they match the current headings,
+    while keeping the template's TOC styles (leader dots, indentation, etc.).
+
+    Page numbers cannot be reliably calculated without a layout engine, so we preserve existing page
+    numbers by position when available.
+    """
+    body = root.find("w:body", NS)
+    if body is None:
+        return
+    children = list(body)
+
+    toc_heading_idx = None
+    for i, el in enumerate(children):
+        if el.tag == _qn("w:p") and _p_text(el) == "فهرست مطالب":
+            toc_heading_idx = i
+            break
+    if toc_heading_idx is None:
+        return
+
+    # Find end of TOC block (template repeats the title after the TOC).
+    toc_end_idx = None
+    for i in range(toc_heading_idx + 1, len(children)):
+        el = children[i]
+        if el.tag == _qn("w:p") and _p_text(el) == "سند معماری نرم‌افزار":
+            toc_end_idx = i
+            break
+    if toc_end_idx is None:
+        return
+
+    def _p_style_val(p: ET.Element) -> str | None:
+        pPr = p.find("w:pPr", NS)
+        if pPr is None:
+            return None
+        st = pPr.find("w:pStyle", NS)
+        if st is None:
+            return None
+        return st.attrib.get(_qns(W_NS, "val"))
+
+    # Capture existing page numbers from the current visible TOC (best-effort).
+    existing_pages: list[str] = []
+    for el in children[toc_heading_idx + 1 : toc_end_idx]:
+        if el.tag != _qn("w:p"):
+            continue
+        st = _p_style_val(el) or ""
+        if not st.startswith("TOC"):
+            continue
+        ts = [t.text for t in el.findall(".//w:t", NS) if t.text]
+        if not ts:
+            continue
+        last = ts[-1].strip()
+        existing_pages.append(last)
+
+    # Collect current headings from the main content.
+    if content_start_idx is None:
+        # Fallback: start from the first occurrence of "کليات سند"
+        for i, el in enumerate(children):
+            if el.tag == _qn("w:p") and _p_text(el) == "کليات سند":
+                content_start_idx = i
+                break
+    if content_start_idx is None:
+        return
+
+    headings: list[tuple[int, str]] = []
+    for el in children[content_start_idx:]:
+        if el.tag != _qn("w:p"):
+            continue
+        st = _p_style_val(el)
+        if st not in ("Heading1", "Heading2", "Heading3"):
+            continue
+        txt = _p_text(el)
+        if not txt:
+            continue
+        level = 1 if st == "Heading1" else 2 if st == "Heading2" else 3
+        headings.append((level, txt))
+
+    if not headings:
+        return
+
+    # Remove existing TOC paragraphs in the TOC area (keep blank lines).
+    for el in list(children[toc_heading_idx + 1 : toc_end_idx]):
+        if el.tag != _qn("w:p"):
+            continue
+        st = _p_style_val(el) or ""
+        if st.startswith("TOC"):
+            body.remove(el)
+
+    # Rebuild TOC entries using template styles (TOC1/TOC2/TOC3).
+    h1 = h2 = h3 = 0
+    page_iter = iter(existing_pages)
+
+    insert_at = toc_heading_idx + 1
+    for level, title in headings:
+        if level == 1:
+            h1 += 1
+            h2 = 0
+            h3 = 0
+            prefix = f"{h1}-"
+            style = "TOC1"
+        elif level == 2:
+            if h1 == 0:
+                h1 = 1
+            h2 += 1
+            h3 = 0
+            prefix = f"{h1}-{h2}-"
+            style = "TOC2"
+        else:
+            if h1 == 0:
+                h1 = 1
+            if h2 == 0:
+                h2 = 1
+            h3 += 1
+            prefix = f"{h1}-{h2}-{h3}-"
+            style = "TOC3"
+
+        entry_text = sanitize_text(prefix + title)
+        page = next(page_iter, "")
+
+        p = ET.Element(_qn("w:p"))
+        pPr = ET.SubElement(p, _qn("w:pPr"))
+        ET.SubElement(pPr, _qn("w:pStyle"), {_qn("w:val"): style})
+
+        r1 = ET.SubElement(p, _qn("w:r"))
+        _add_rtl_props(r1)
+        _set_run_text(r1, entry_text)
+
+        rtab = ET.SubElement(p, _qn("w:r"))
+        _add_rtl_props(rtab)
+        ET.SubElement(rtab, _qn("w:tab"))
+
+        if page:
+            r2 = ET.SubElement(p, _qn("w:r"))
+            _add_rtl_props(r2)
+            _set_run_text(r2, page)
+
+        body.insert(insert_at, p)
+        insert_at += 1
+
+
 def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
     el: list[ET.Element] = []
 
@@ -1618,6 +1758,7 @@ def main() -> int:
 
     # Replace the static template TOC with a real, updatable TOC field.
     ensure_toc_field(root, file_bytes)
+    rebuild_toc_like_template(root, content_start_idx=start_idx)
 
     # Fix header/footer placeholders (e.g., '...') after all edits.
     _update_header_footer_xml(file_bytes)
