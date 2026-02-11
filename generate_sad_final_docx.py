@@ -46,6 +46,12 @@ DOC_VERSION: Final = "1.0"
 DOC_CLASSIFICATION: Final = "محرمانه"
 GROUP_MEMBERS_FALLBACK: Final = "محمد صادقی، مهدی مالوردی"
 
+_PERSIAN_DIGITS_TRANS = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
+
+
+def _to_persian_digits(text: str) -> str:
+    return text.translate(_PERSIAN_DIGITS_TRANS)
+
 
 def _read_group_members_from_markdown(path: Path) -> str | None:
     if not path.exists():
@@ -148,10 +154,10 @@ def _update_header_footer_xml(file_bytes: dict[str, bytes]) -> None:
     """
     today = _dt.date.today()
     jy, jm, jd = _gregorian_to_jalali(today.year, today.month, today.day)
-    jalali_day = f"{jd:02d}"
-    jalali_month = f"{jm:02d}"
+    jalali_day = _to_persian_digits(f"{jd:02d}")
+    jalali_month = _to_persian_digits(f"{jm:02d}")
     jy_str = str(jy)
-    greg_year = str(today.year)
+    jalali_year = _to_persian_digits(jy_str)
 
     def _patch_part(part_path: str, edits: dict[int, str]) -> None:
         raw = file_bytes.get(part_path)
@@ -169,8 +175,8 @@ def _update_header_footer_xml(file_bytes: dict[str, bytes]) -> None:
 
     # word/header1.xml tokens (by index):
     # 0 'سامانه ' | 1 '...' | 2 'نسخه 1.0' | ... | 7 'تاريخ: ' | 8 dd | 9 '/' | 10 mm | 11 '/140' | 12 '3'
-    header_year_prefix = f"/{jy_str[:-1]}" if len(jy_str) == 4 else f"/{jy_str}"
-    header_year_last = jy_str[-1] if len(jy_str) == 4 else ""
+    header_year_prefix = _to_persian_digits(f"/{jy_str[:-1]}" if len(jy_str) == 4 else f"/{jy_str}")
+    header_year_last = _to_persian_digits(jy_str[-1] if len(jy_str) == 4 else "")
     _patch_part(
         "word/header1.xml",
         {
@@ -189,7 +195,7 @@ def _update_header_footer_xml(file_bytes: dict[str, bytes]) -> None:
         "word/footer2.xml",
         {
             0: DOC_CLASSIFICATION,
-            3: "\u200f" + greg_year,
+            3: "\u200f" + jalali_year,
             4: f"، سامانه {SYSTEM_NAME}",
         },
     )
@@ -869,8 +875,10 @@ def fill_history_table(root: ET.Element) -> None:
     if len(tcs) < 4:
         return
 
-    today = _dt.date.today().isoformat()
-    values = [today, "1.0", "نسخه نهایی", "محمد صادقی / مهدی مالوردی"]
+    today = _dt.date.today()
+    jy, jm, jd = _gregorian_to_jalali(today.year, today.month, today.day)
+    jalali_date = _to_persian_digits(f"{jy:04d}/{jm:02d}/{jd:02d}")
+    values = [jalali_date, "1.0", "نسخه نهایی", "محمد صادقی / مهدی مالوردی"]
     for tc_el, val in zip(tcs, values, strict=False):
         # Replace first paragraph text inside cell
         p = tc_el.find("./w:p", NS)
