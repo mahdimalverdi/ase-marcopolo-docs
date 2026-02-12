@@ -333,6 +333,14 @@ def make_p(
     return p
 
 
+def make_label(text: str) -> ET.Element:
+    """
+    A bold label paragraph used inside use-case specs (e.g., کنشگرها/پیش‌شرط‌ها/پس‌شرط‌ها).
+    Keeps it visually distinct from body text without turning it into a numbered heading/TOC item.
+    """
+    return make_p(text, bold=True, spacing_before=200, spacing_after=80, keep_next=True)
+
+
 def make_tbl(headers: list[str], rows: list[list[str]], *, col_weights: list[int] | None = None) -> ET.Element:
     tbl = ET.Element(_qn("w:tbl"))
 
@@ -1320,13 +1328,13 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             jc="both",
         )
     )
-    el.append(make_p("کنشگرها"))
+    el.append(make_label("کنشگرها"))
     el.append(make_tbl(["نقش", "توضیح"], [["کاربر", "ارسال معیارهای جست‌وجو و مشاهده نتایج"], ["تأمین‌کننده", "ارائه گزینه‌های سفر از طریق API"]], col_weights=[1, 3]))
-    el.append(make_p("پیش‌شرط‌ها"))
+    el.append(make_label("پیش‌شرط‌ها"))
     el.append(make_p("کاربر به سامانه دسترسی دارد و سرویس‌های تأمین‌کننده در دسترس هستند.", jc="both"))
-    el.append(make_p("پس‌شرط‌ها"))
+    el.append(make_label("پس‌شرط‌ها"))
     el.append(make_p("نتایج جست‌وجو به کاربر نمایش داده می‌شود و در صورت امکان، نتیجه برای مدت کوتاه در حافظه نهان ذخیره می‌گردد.", jc="both"))
-    el.append(make_p("جریان اصلی"))
+    el.append(make_label("جریان اصلی"))
     el.append(
         make_tbl(
             ["گام", "شرح"],
@@ -1342,7 +1350,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[1, 3],
         )
     )
-    el.append(make_p("جریان‌های جایگزین و خطا"))
+    el.append(make_label("جریان‌های جایگزین و خطا"))
     el.append(
         make_tbl(
             ["شناسه", "شرط/رویداد", "رفتار سامانه"],
@@ -1371,7 +1379,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             jc="both",
         )
     )
-    el.append(make_p("کنشگرها"))
+    el.append(make_label("کنشگرها"))
     el.append(
         make_tbl(
             ["نقش", "توضیح"],
@@ -1384,9 +1392,9 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[1, 3],
         )
     )
-    el.append(make_p("پیش‌شرط‌ها"))
+    el.append(make_label("پیش‌شرط‌ها"))
     el.append(make_p("کاربر وارد سامانه شده است و یک گزینه سفر معتبر انتخاب کرده است.", jc="both"))
-    el.append(make_p("پس‌شرط‌ها"))
+    el.append(make_label("پس‌شرط‌ها"))
     el.append(
         make_p(
             "در حالت موفق، سفارش در وضعیت صدور انجام شد قرار می‌گیرد و بلیت/کد پیگیری به کاربر اعلام می‌شود. "
@@ -1394,7 +1402,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             jc="both",
         )
     )
-    el.append(make_p("قواعد کلیدی"))
+    el.append(make_label("قواعد کلیدی"))
     el.append(
         make_tbl(
             ["قانون", "توضیح"],
@@ -1406,7 +1414,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[1, 3],
         )
     )
-    el.append(make_p("جریان اصلی"))
+    el.append(make_label("جریان اصلی"))
     el.append(
         make_tbl(
             ["گام", "شرح"],
@@ -1424,7 +1432,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[1, 3],
         )
     )
-    el.append(make_p("جریان‌های جایگزین و خطا"))
+    el.append(make_label("جریان‌های جایگزین و خطا"))
     el.append(
         make_tbl(
             ["شناسه", "شرط/رویداد", "رفتار سامانه"],
