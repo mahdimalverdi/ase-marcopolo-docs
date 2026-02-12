@@ -1312,7 +1312,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
         )
     )
 
-    el.append(make_p("موردکاربری منتخب ۱ (ساده): UC-01 جست‌وجوی خدمات سفر", style="Heading2"))
+    el.append(make_p("موردکاربری نمونه ۱: UC-01 جست‌وجوی خدمات سفر", style="Heading2"))
     el.append(
         make_p(
             "UC-01 به‌عنوان یک موردکاربری ساده انتخاب شده است. هدف آن این است که کاربر بتواند بر اساس معیارهای سفر، "
@@ -1364,7 +1364,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             jc="both",
         )
     )
-    el.append(make_p("موردکاربری منتخب ۲ (پیچیده): UC-02 خرید بلیت", style="Heading2"))
+    el.append(make_p("موردکاربری نمونه ۲: UC-02 خرید بلیت", style="Heading2"))
     el.append(
         make_p(
             "UC-02 به‌عنوان موردکاربری پیچیده انتخاب شده است، زیرا شامل چند گام وابسته (بازبینی ظرفیت و قیمت، پرداخت، بازگشت بانک، راستی‌آزمایی و صدور) و مدیریت خطاهای حساس است.",
