@@ -1,24 +1,24 @@
-flowchart TB
-  Guest[مشتری (مهمان)]
-  User[مشتری (عضو)]
-  Bank[درگاه پرداخت]
-  SupportAgent[اپراتور پشتیبانی]
-  Admin[مدیر سامانه]
-  Provider[تأمین‌کننده]
+graph TB
+  Guest["مشتری (مهمان)"]
+  User["مشتری (عضو)"]
+  Bank["درگاه پرداخت"]
+  SupportAgent["اپراتور پشتیبانی"]
+  Admin["مدیر سامانه"]
+  Provider["تأمین‌کننده"]
 
-  subgraph System[سامانه مارکوپولو]
-    UC_Search([جست‌وجوی خدمات سفر])
-    UC_AdvSearch([جست‌وجوی پیشرفته])
-    UC_View([مشاهده جزئیات گزینه])
-    UC_Buy([خرید بلیت])
-    UC_Refund([استرداد بلیت])
-    UC_Wallet([کیف‌پول])
-    UC_Support([ثبت/پیگیری تیکت])
-    UC_Review([ثبت نظر/امتیاز])
-    UC_Settle([تسویه‌حساب با تأمین‌کنندگان])
-    UC_Admin([مدیریت سامانه])
-    UC_Payment([پرداخت])
-    UC_Notify([ارسال اعلان])
+  subgraph System["سامانه مارکوپولو"]
+    UC_Search(["جست‌وجوی خدمات سفر"])
+    UC_AdvSearch(["جست‌وجوی پیشرفته"])
+    UC_View(["مشاهده جزئیات گزینه"])
+    UC_Buy(["خرید بلیت"])
+    UC_Refund(["استرداد بلیت"])
+    UC_Wallet(["کیف‌پول"])
+    UC_Support(["ثبت و پیگیری تیکت"])
+    UC_Review(["ثبت نظر و امتیاز"])
+    UC_Settle(["تسویه‌حساب با تأمین‌کنندگان"])
+    UC_Admin(["مدیریت سامانه"])
+    UC_Payment(["پرداخت"])
+    UC_Notify(["ارسال اعلان"])
   end
 
   Guest --> UC_Search

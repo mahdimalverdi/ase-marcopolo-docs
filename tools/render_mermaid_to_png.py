@@ -6,6 +6,7 @@ import html as html_lib
 import shutil
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
 from PIL import Image
@@ -122,30 +123,41 @@ def render_one(
         raw_png = td_path / "raw.png"
         html_path.write_text(html_doc, encoding="utf-8")
 
-        cmd = [
+        base_cmd = [
             str(chrome),
-            "--headless=new",
             "--no-sandbox",
             "--disable-gpu",
             "--disable-dev-shm-usage",
             "--no-first-run",
             "--no-default-browser-check",
             "--hide-scrollbars",
+            # Extra stability flags for flaky CI/sandbox environments.
+            "--disable-crash-reporter",
+            "--disable-breakpad",
+            "--disable-features=Translate,BackForwardCache",
             f"--window-size={width},{height}",
             f"--virtual-time-budget={time_budget_ms}",
             f"--screenshot={raw_png}",
             str(html_path.as_uri()),
         ]
-        # Retry with older headless mode if Chrome crashes (SIGTRAP happens intermittently in some sandboxes).
-        for attempt in range(2):
-            try:
-                subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # Chrome can intermittently die with SIGTRAP in some sandboxes.
+        # Try both headless modes, with a few retries each.
+        last_err: subprocess.CalledProcessError | None = None
+        for headless_flag in ("--headless=new", "--headless"):
+            cmd = [base_cmd[0], headless_flag, *base_cmd[1:]]
+            for attempt in range(3):
+                try:
+                    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    last_err = None
+                    break
+                except subprocess.CalledProcessError as e:
+                    last_err = e
+                    time.sleep(0.4 * (attempt + 1))
+            if last_err is None:
                 break
-            except subprocess.CalledProcessError:
-                if attempt == 0:
-                    cmd[cmd.index("--headless=new")] = "--headless"
-                    continue
-                raise
+        if last_err is not None:
+            raise last_err
 
         with Image.open(raw_png) as im:
             im = im.convert("RGB")
