@@ -409,6 +409,11 @@ def make_tbl(headers: list[str], rows: list[list[str]], *, col_weights: list[int
 
     # Header row
     tr = ET.SubElement(tbl, _qn("w:tr"))
+    trPr = ET.SubElement(tr, _qn("w:trPr"))
+    # Repeat header on each page when the table spans multiple pages.
+    ET.SubElement(trPr, _qn("w:tblHeader"))
+    # Prevent the header row itself from splitting across pages.
+    ET.SubElement(trPr, _qn("w:cantSplit"))
     for col_w, h in zip(widths, headers, strict=False):
         cell = tc(h, header=True)
         tcW = cell.find("./w:tcPr/w:tcW", NS)
@@ -419,6 +424,9 @@ def make_tbl(headers: list[str], rows: list[list[str]], *, col_weights: list[int
     # Data rows
     for row in rows:
         tr = ET.SubElement(tbl, _qn("w:tr"))
+        trPr = ET.SubElement(tr, _qn("w:trPr"))
+        # Avoid splitting a single row between two pages (improves readability in Word/LibreOffice).
+        ET.SubElement(trPr, _qn("w:cantSplit"))
         for col_w, c in zip(widths, row, strict=False):
             cell = tc(c)
             tcW = cell.find("./w:tcPr/w:tcW", NS)
