@@ -61,6 +61,9 @@ def _extract_fig_captions(py_path: Path) -> dict[str, str]:
 
 def _run_soffice_convert_to_pdf(docx_path: Path, out_dir: Path) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
+    profile_dir = out_dir / ".lo-profile"
+    profile_dir.mkdir(parents=True, exist_ok=True)
+    profile_url = profile_dir.resolve().as_uri()
     cmd = [
         "soffice",
         "--headless",
@@ -74,8 +77,16 @@ def _run_soffice_convert_to_pdf(docx_path: Path, out_dir: Path) -> Path:
         str(docx_path),
         "--outdir",
         str(out_dir),
+        f"-env:UserInstallation={profile_url}",
     ]
-    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        proc.wait(timeout=60)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        raise RuntimeError("PDF conversion timed out (LibreOffice headless).")
+    if proc.returncode != 0:
+        raise RuntimeError(f"PDF conversion failed (LibreOffice exit code: {proc.returncode}).")
     pdf_path = out_dir / (docx_path.stem + ".pdf")
     if not pdf_path.exists():
         raise RuntimeError("PDF conversion finished but output PDF was not found.")

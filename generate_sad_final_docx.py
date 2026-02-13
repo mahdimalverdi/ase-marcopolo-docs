@@ -1062,6 +1062,22 @@ def rebuild_toc_like_template(root: ET.Element, *, content_start_idx: int) -> No
     if not toc_items:
         return
 
+    # Capture existing (template) page numbers as a best-effort placeholder.
+    # LibreOffice headless conversion often doesn't refresh fields, so keeping a number here
+    # avoids shipping a TOC with blank page numbers in the PDF.
+    old_pages: list[str] = []
+    for el in list(children[toc_heading_idx + 1 : toc_end_idx]):
+        if el.tag != _qn("w:p"):
+            continue
+        st = _p_style_val(el) or ""
+        if not st.startswith("TOC"):
+            continue
+        txt = _p_text(el)
+        # Last run of digits (Latin/Persian/Arabic-Indic).
+        m = re.search(r"([0-9۰-۹٠-٩]+)\s*$", txt)
+        if m:
+            old_pages.append(m.group(1))
+
     # Remove existing visible TOC paragraphs between heading and end marker.
     for el in list(children[toc_heading_idx + 1 : toc_end_idx]):
         if el.tag != _qn("w:p"):
@@ -1072,7 +1088,7 @@ def rebuild_toc_like_template(root: ET.Element, *, content_start_idx: int) -> No
 
     h1 = h2 = h3 = 0
     insert_at = toc_heading_idx + 1
-    for level, title, bm_name in toc_items:
+    for idx, (level, title, bm_name) in enumerate(toc_items):
         if level == 1:
             h1 += 1
             h2 = 0
@@ -1108,7 +1124,7 @@ def rebuild_toc_like_template(root: ET.Element, *, content_start_idx: int) -> No
         fld = ET.SubElement(p, _qn("w:fldSimple"), {_qn("w:instr"): f"PAGEREF {bm_name} \\h"})
         r_page = ET.SubElement(fld, _qn("w:r"))
         _add_rtl_props(r_page)
-        _set_run_text(r_page, "")
+        _set_run_text(r_page, old_pages[idx] if idx < len(old_pages) else "")
 
         body.insert(insert_at, p)
         insert_at += 1
@@ -2103,8 +2119,10 @@ def main() -> int:
         embed_images=args.embed_images,
     )
 
-    # Keep the template TOC field and make sure it updates on open.
+    # Keep the template TOC field and make sure it updates on open; also regenerate the visible
+    # TOC entries based on current headings so the document doesn't ship with stale titles.
     ensure_toc_field(root, file_bytes)
+    rebuild_toc_like_template(root, content_start_idx=start_idx)
 
     # Fix header/footer placeholders (e.g., '...') after all edits.
     _update_header_footer_xml(file_bytes)
