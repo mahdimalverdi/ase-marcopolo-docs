@@ -73,8 +73,24 @@ def main() -> int:
     try:
         desktop = _connect_desktop(args.host, args.port, timeout_s=args.timeout_s)
 
-        load_props = (_prop("Hidden", True), _prop("ReadOnly", False))
-        doc = desktop.loadComponentFromURL(_file_url(in_path), "_blank", 0, load_props)
+        load_props = (
+            _prop("Hidden", True),
+            _prop("ReadOnly", False),
+            # Make the importer explicit; in some environments LO may not auto-detect .docx reliably via UNO.
+            _prop("FilterName", "MS Word 2007 XML"),
+        )
+        doc = None
+        for _ in range(15):
+            try:
+                doc = desktop.loadComponentFromURL(_file_url(in_path), "_blank", 0, load_props)
+            except Exception:
+                doc = None
+            if doc is not None:
+                break
+            time.sleep(0.2)
+        if doc is None:
+            print("Failed to load document via UNO (doc is None).", file=sys.stderr)
+            return 3
 
         # Update indexes (TOC is an index) and fields.
         try:
@@ -113,4 +129,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

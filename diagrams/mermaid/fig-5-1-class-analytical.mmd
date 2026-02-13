@@ -1,31 +1,40 @@
 classDiagram
   class Booking {
-    +bookingId
-    +status
-    +createdAt
-    +expiresAt
+    +string bookingId
+    +string status
+    +datetime createdAt
+    +datetime expiresAt
   }
 
   class Passenger {
-    +fullName
-    +nationalId
-    +birthDate
+    +string fullName
+    +string nationalId
+    +date birthDate
   }
 
   class PaymentTransaction {
-    +transactionId
-    +gatewayRef
-    +amount
-    +status
-    +idempotencyKey
+    +string transactionId
+    +string gatewayRef
+    +int amount
+    +string status
+    +string idempotencyKey
   }
 
   class Ticket {
-    +ticketId
-    +providerRef
-    +issueStatus
+    +string ticketId
+    +string providerRef
+    +string issueStatus
   }
+
+  class ProviderAdapter {
+    +search()
+    +review()
+    +issue()
+    +refund()
+  }
+  <<interface>> ProviderAdapter
 
   Booking "1" --> "*" Passenger : "شامل"
   Booking "1" --> "0..*" PaymentTransaction : "تراکنش‌ها"
   Booking "1" --> "0..1" Ticket : "نتیجه صدور"
+  ProviderAdapter ..> Booking : "صدور/استرداد"
