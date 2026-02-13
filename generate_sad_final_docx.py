@@ -1246,7 +1246,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
         )
     )
 
-    el.append(make_p("ذی‌نفعان و نیازهای کلیدی"))
+    el.append(make_p("ذی‌نفعان و نیازهای کلیدی", bold=True, spacing_before=220, spacing_after=100, keep_next=True))
     el.append(
         make_tbl(
             ["ذی‌نفع", "نیاز/انتظار"],
@@ -1482,7 +1482,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[1, 3],
         )
     )
-    el.append(make_p("فهرست موارد کاربری سطح سیستم"))
+    el.append(make_p("فهرست موارد کاربری سطح سیستم", bold=True, spacing_before=220, spacing_after=100, keep_next=True))
     el.append(
         make_tbl(
             ["دسته‌بندی", "شناسه", "کنشگر", "موردکاربری کلان", "توضیح"],
@@ -1543,7 +1543,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[1, 2, 3],
         )
     )
-    el.append(make_p("نیازمندی‌های غیرعملکردی مرتبط"))
+    el.append(make_label("نیازمندی‌های غیرعملکردی مرتبط"))
     el.append(
         make_p(
             "هدف عملیاتی این است که زمان پاسخ جست‌وجو در شرایط معمول زیر ۳ ثانیه باشد (صدک ۹۵). برای اینکه این هدف قابل پیگیری بماند، "
