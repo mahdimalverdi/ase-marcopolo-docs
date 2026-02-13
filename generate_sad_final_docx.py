@@ -1262,7 +1262,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
 
     # 2) نمایش معماری
     el.append(make_p("نمایش معماری", style="Heading1"))
-    el.append(make_p("سبک معماری (انتخاب‌شده)", style="Heading2"))
+    el.append(make_p("سبک معماری", style="Heading2"))
     el.append(
         make_p(
             "در سمت سرور، معماری لایه‌ای انتخاب شده است. درخواست‌ها از طریق API وارد می‌شوند و پس از اعمال سیاست‌های عمومی "
@@ -1362,7 +1362,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
         )
     )
 
-    el.append(make_p("تصمیم‌های معماری (خلاصه)", style="Heading2"))
+    el.append(make_p("تصمیم‌های معماری", style="Heading2"))
     el.append(
         make_tbl(
             ["تصمیم", "دلیل", "پیامد"],
@@ -1661,7 +1661,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             ],
         )
     )
-    el.append(make_p("CRC (تحلیل) — مشترک", style="Heading2"))
+    el.append(make_p("CRC — مشترک", style="Heading2"))
     el.append(
         make_tbl(
             ["کلاس", "مسئولیت‌ها", "همکاران"],
@@ -1681,7 +1681,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
         )
     )
     el.append(make_fig_marker("5-3"))
-    el.append(fig_caption("شکل ۵-۳: کارت‌های CRC (تحلیل) — نمایش خلاصه مسئولیت‌ها و همکاران."))
+    el.append(fig_caption("شکل ۵-۳: کارت‌های CRC تحلیلی — نمایش خلاصه مسئولیت‌ها و همکاران."))
 
     el.append(make_p("الگوهای طراحی کلیدی", style="Heading2"))
     el.append(
@@ -1697,7 +1697,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
     el.append(make_fig_marker("5-1"))
     el.append(fig_caption("شکل ۵-۱: نمودار کلاس (تحلیلی) — کلاس‌های کلیدی و رابطه‌ها."))
     el.append(make_fig_marker("5-2"))
-    el.append(fig_caption("شکل ۵-۲: نمودار کلاس (طراحی) — تمرکز روی رابط‌ها و عملیات."))
+    el.append(fig_caption("شکل ۵-۲: نمودار کلاس طراحی — تمرکز روی رابط‌ها و عملیات."))
 
     # 6) دید فرایند
     el.append(make_p("دید فرایند", style="Heading1"))
@@ -1712,7 +1712,13 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             jc="both",
         )
     )
-    el.append(make_p("کارهای پس‌زمینه (اختیاری)", style="Heading2"))
+    el.append(make_p("کارهای پس‌زمینه", style="Heading2"))
+    el.append(
+        make_p(
+            "اجرای این کارها به‌صورت پس‌زمینه به پایداری و کاهش خطاهای موقت کمک می‌کند و می‌تواند متناسب با نیاز تیم و زیرساخت اضافه شود.",
+            jc="both",
+        )
+    )
     el.append(
         make_tbl(
             ["کار", "دلیل", "سیاست"],
@@ -1734,7 +1740,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
     )
 
     # 7) دید فیزیکی
-    el.append(make_p("دید فیزیکی (استقرار)", style="Heading1"))
+    el.append(make_p("دید فیزیکی", style="Heading1"))
     el.append(make_fig_marker("7-1"))
     el.append(fig_caption("شکل ۷-۱: نمودار استقرار."))
 
@@ -1760,7 +1766,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[2, 2, 2, 2],
         )
     )
-    el.append(make_p("قراردادهای API (نمای کلی)", style="Heading2"))
+    el.append(make_p("قراردادهای API", style="Heading2"))
     el.append(
         make_tbl(
             ["مسیر خدمت", "توضیح"],
@@ -1870,7 +1876,7 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
     )
 
     # 9) دید داده
-    el.append(make_p("دید داده (اختیاری)", style="Heading1"))
+    el.append(make_p("دید داده", style="Heading1"))
     el.append(make_fig_marker("9-1"))
     el.append(fig_caption("شکل ۹-۱: نمودار موجودیت-رابطه (مدل داده)."))
     el.append(make_p("سیاست‌های داده", style="Heading2"))
