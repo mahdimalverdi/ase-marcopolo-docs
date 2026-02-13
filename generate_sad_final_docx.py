@@ -521,6 +521,7 @@ def ensure_default_diagrams(diagrams_dir: Path) -> dict[str, Path]:
         "4-9": diagrams_dir / "fig-4-9-state-booking.png",
         "5-1": diagrams_dir / "fig-5-1-class-analytical.png",
         "5-2": diagrams_dir / "fig-5-2-class-design.png",
+        "5-3": diagrams_dir / "fig-5-3-crc-common.png",
         "7-1": diagrams_dir / "fig-7-1-deploy.png",
         "9-1": diagrams_dir / "fig-9-1-erd.png",
     }
@@ -602,6 +603,7 @@ def ensure_default_diagrams(diagrams_dir: Path) -> dict[str, Path]:
         "4-9",
         "5-1",
         "5-2",
+        "5-3",
         "7-1",
         "9-1",
     ]:
@@ -797,6 +799,7 @@ def embed_figures(
         "4-9": diagrams_dir / "fig-4-9-state-booking.png",
         "5-1": diagrams_dir / "fig-5-1-class-analytical.png",
         "5-2": diagrams_dir / "fig-5-2-class-design.png",
+        "5-3": diagrams_dir / "fig-5-3-crc-common.png",
         "7-1": diagrams_dir / "fig-7-1-deploy.png",
         "9-1": diagrams_dir / "fig-9-1-erd.png",
     }
@@ -1677,6 +1680,8 @@ def build_sad_content(*, fig_caption_red: bool = True) -> list[ET.Element]:
             col_weights=[2, 4, 3],
         )
     )
+    el.append(make_fig_marker("5-3"))
+    el.append(fig_caption("شکل ۵-۳: کارت‌های CRC (تحلیل) — نمایش خلاصه مسئولیت‌ها و همکاران."))
 
     el.append(make_p("الگوهای طراحی کلیدی", style="Heading2"))
     el.append(
