@@ -353,6 +353,8 @@ def make_tbl(headers: list[str], rows: list[list[str]], *, col_weights: list[int
     cell_mar = ET.SubElement(tblPr, _qn("w:tblCellMar"))
     ET.SubElement(cell_mar, _qn("w:left"), {_qn("w:w"): "0", _qn("w:type"): "dxa"})
     ET.SubElement(cell_mar, _qn("w:right"), {_qn("w:w"): "0", _qn("w:type"): "dxa"})
+    ET.SubElement(cell_mar, _qn("w:top"), {_qn("w:w"): "0", _qn("w:type"): "dxa"})
+    ET.SubElement(cell_mar, _qn("w:bottom"), {_qn("w:w"): "0", _qn("w:type"): "dxa"})
     borders = ET.SubElement(tblPr, _qn("w:tblBorders"))
     for side in ("top", "left", "bottom", "right", "insideH", "insideV"):
         ET.SubElement(
@@ -392,6 +394,29 @@ def make_tbl(headers: list[str], rows: list[list[str]], *, col_weights: list[int
     drift = total_w - sum(widths)
     widths[-1] += drift
 
+    def _cell_p(text: str, *, bold: bool) -> ET.Element:
+        # Table rows are prone to spilling across pages in Word/LibreOffice when
+        # paragraph spacing is large. Use compact spacing inside table cells.
+        p = ET.Element(_qn("w:p"))
+        pPr = ET.SubElement(p, _qn("w:pPr"))
+        ET.SubElement(
+            pPr,
+            _qn("w:spacing"),
+            {
+                _qn("w:before"): "0",
+                _qn("w:after"): "0",
+                _qn("w:line"): "240",
+                _qn("w:lineRule"): "auto",
+            },
+        )
+        ET.SubElement(pPr, _qn("w:jc"), {_qn("w:val"): "center"})
+        _add_rtl_props(pPr, bold=False, italic=False)
+
+        r = ET.SubElement(p, _qn("w:r"))
+        _add_rtl_props(r, bold=bold, italic=False, color=None)
+        _set_run_text(r, text)
+        return p
+
     def tc(text: str, *, header: bool = False) -> ET.Element:
         cell = ET.Element(_qn("w:tc"))
         tcPr = ET.SubElement(cell, _qn("w:tcPr"))
@@ -399,7 +424,7 @@ def make_tbl(headers: list[str], rows: list[list[str]], *, col_weights: list[int
         ET.SubElement(tcPr, _qn("w:tcW"), {_qn("w:w"): "0", _qn("w:type"): "dxa"})
         ET.SubElement(tcPr, _qn("w:vAlign"), {_qn("w:val"): "center"})
         # Keep cell text readable and right-to-left
-        cell.append(make_p(text, bold=header, jc="center"))
+        cell.append(_cell_p(text, bold=header))
         return cell
 
     # Column grid
